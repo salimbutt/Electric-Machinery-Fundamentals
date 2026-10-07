@@ -7506,7 +7506,10 @@ render((location.hash||'#universal').slice(1)||'universal');
   document.addEventListener('click',function(e){var a=e.target.closest&&e.target.closest('a[data-ch]');if(!a)return;var i=+a.dataset.ch,sid=a.dataset.sec;openSection(i,sid);
     var links=document.getElementById('links');if(links)links.classList.remove('open');});
   // chapter → chapter links coming from inside a frame
-  window.addEventListener('message',function(e){var d=e.data||{};if(typeof d.emfGo==='number'){var s=document.getElementById('chapter'+d.emfGo);if(s){mount(d.emfGo);s.scrollIntoView({behavior:'smooth'});}}});
+  window.addEventListener('message',function(e){var d=e.data||{};if(typeof d.emfGo==='number'){var s=document.getElementById('chapter'+d.emfGo);if(!s)return;var f=mount(d.emfGo),go=function(){s.scrollIntoView({behavior:'smooth',block:'start'});};go();
+    // a freshly created frame parses a whole chapter and can interrupt the smooth scroll — scroll again once it has loaded
+    if(!f.dataset.loaded)f.addEventListener('load',function(){setTimeout(go,80);},{once:true});}});
+  document.addEventListener('load',function(e){if(e.target&&e.target.tagName==='IFRAME')e.target.dataset.loaded='1';},true);
   // mobile navigation
   var burger=document.getElementById('burger'),links=document.getElementById('links');
   burger.onclick=function(){links.classList.toggle('open');};
